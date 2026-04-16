@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProxySheet | 代理 Excel 转换工作台</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <h1>代理表单格式过滤</h1>
+        </div>
+      </header>
+
+      <main class="main-layout single-screen-layout">
+        <section class="workspace-grid split-layout">
+          <article class="panel upload-panel merged-panel">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">step1</p>
+                <h3>上传并校验</h3>
+              </div>
+              <div class="section-actions">
+                <button class="button primary" type="button" id="validate-button">开始校验</button>
+                <button class="button ghost" type="button" id="clear-file-button">清空</button>
+                <button class="text-button" type="button" id="check-service-button">检查服务</button>
+              </div>
+            </div>
+
+            <button id="upload-dropzone" class="dropzone" type="button">
+              <span class="dropzone-icon">+</span>
+              <span class="dropzone-title">选择 Excel 文件</span>
+              <span class="dropzone-copy">仅支持 `.xlsx`</span>
+            </button>
+            <input id="file-input" type="file" accept=".xlsx" hidden />
+
+            <div class="meta-strip">
+              <div class="meta-chip inline-meta-chip">
+                <span>文件</span>
+                <strong id="file-name">未选择文件</strong>
+              </div>
+              <div class="meta-chip inline-meta-chip">
+                <span>Sheet</span>
+                <strong id="sheet-name">—</strong>
+              </div>
+              <div class="meta-chip inline-meta-chip">
+                <span>状态</span>
+                <strong id="dataset-mode">等待校验</strong>
+              </div>
+            </div>
+
+            <div class="summary-stats">
+              <article class="summary-stat inline-summary-stat">
+                <span>总行数</span>
+                <strong id="total-rows">0</strong>
+              </article>
+              <article class="summary-stat inline-summary-stat">
+                <span>通过</span>
+                <strong id="valid-rows">0</strong>
+              </article>
+              <article class="summary-stat inline-summary-stat danger">
+                <span>异常</span>
+                <strong id="error-rows">0</strong>
+              </article>
+            </div>
+
+            <div class="status-card" id="status-card">
+              <div class="status-inline">
+                <span class="status-label">校验结果</span>
+                <span id="status-pill" class="pill pill-emerald">等待校验</span>
+                <span class="status-caption" id="status-caption">请先上传源表并执行校验</span>
+                <button id="open-errors-button" class="button ghost" type="button">查看错误明细</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel table-panel merged-panel">
+            <div class="section-head table-head">
+              <div>
+                <p class="section-kicker">step2</p>
+                <h3>预览并导出</h3>
+              </div>
+              <div class="section-actions">
+                <button id="export-button" class="button primary" type="button" disabled>导出 Excel</button>
+              </div>
+            </div>
+
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr>
+                    <th>IP地址</th>
+                    <th>代理地址</th>
+                    <th>代理端口</th>
+                    <th>代理账号</th>
+                    <th>代理密码</th>
+                    <th>备注</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-body"></tbody>
+              </table>
+            </div>
+
+          <div class="export-footer">
+            <div class="export-inline">
+              <span class="export-title">目标文件</span>
+              <span class="export-copy" id="export-copy">等待校验通过后生成并下载目标 Excel。</span>
+            </div>
+          </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="error-modal" class="modal" hidden>
+      <div class="modal-backdrop" data-close-modal></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-head">
+          <div>
+            <p class="section-kicker">Validation Errors</p>
+            <h3 id="modal-title">异常数据明细</h3>
+          </div>
+          <button class="icon-button" type="button" data-close-modal aria-label="关闭">×</button>
+        </div>
+        <div class="modal-summary" id="modal-summary"></div>
+        <div class="modal-list" id="modal-list"></div>
+      </div>
+    </div>
+
+    <script src="./src/app.js"></script>
+  </body>
+</html>
