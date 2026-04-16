@@ -287,9 +287,10 @@ class ProxyExcelHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
+    host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8765"))
-    with socketserver.ThreadingTCPServer(("127.0.0.1", port), ProxyExcelHandler) as httpd:
-        print(f"Proxy Excel Converter running at http://127.0.0.1:{port}")
+    with socketserver.ThreadingTCPServer((host, port), ProxyExcelHandler) as httpd:
+        print(f"Proxy Excel Converter running at http://{host}:{port}")
         httpd.serve_forever()
 
 

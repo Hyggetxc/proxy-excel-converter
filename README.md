@@ -30,6 +30,23 @@ Then open:
 
 - [http://127.0.0.1:8765](http://127.0.0.1:8765)
 
+## Deploy to Render
+
+This repo already includes [render.yaml](/Users/lemon/Documents/project/Codex PJ/proxy-excel-converter/render.yaml), so you can deploy it directly on Render:
+
+1. Open Render Dashboard
+2. New -> Blueprint or Web Service
+3. Connect GitHub repo: `Hyggetxc/proxy-excel-converter`
+4. Render will detect:
+   - build: `pip install -r requirements.txt`
+   - start: `python3 app.py`
+5. After deploy, open the Render URL
+
+Notes:
+
+- This app is not suitable for GitHub Pages because it requires a Python backend.
+- Render can host both the HTML UI and the Excel processing API in one service.
+
 ## Current Status
 
 - Real source `.xlsx` validation is wired
