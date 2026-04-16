@@ -2,6 +2,10 @@
 
 静态版代理表单格式过滤工具。
 
+## 在线访问
+
+[https://hyggetxc.github.io/proxy-excel-converter/](https://hyggetxc.github.io/proxy-excel-converter/)
+
 ## Scope
 
 - 上传一个源 `.xlsx` 文件
@@ -21,16 +25,6 @@
 ## 本地预览
 
 直接打开 `index.html` 即可，或用任意静态文件服务预览。
-
-## 发布到 GitHub Pages
-
-1. 推送仓库到 GitHub
-2. 进入仓库 `Settings -> Pages`
-3. `Build and deployment` 选择 `Deploy from a branch`
-4. Branch 选择 `main`，目录选择 `/ (root)`
-5. 保存后等待 GitHub 生成 Pages 链接
-
-发布完成后，页面会直接在浏览器内读取 Excel、校验、预览并导出。
 
 ## Notes
 
