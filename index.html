@@ -28,7 +28,7 @@
             <article class="panel merged-panel">
               <div class="section-head">
                 <div>
-                  <p class="section-kicker">tab1</p>
+                  <p class="section-kicker">step1</p>
                   <h3>批量导入 S5 URL</h3>
                 </div>
                 <div class="section-actions">
@@ -59,7 +59,7 @@
             <article class="panel merged-panel">
               <div class="section-head">
                 <div>
-                  <p class="section-kicker">tab1</p>
+                  <p class="section-kicker">step2</p>
                   <h3>导出配置</h3>
                 </div>
                 <div class="section-actions">
@@ -68,20 +68,26 @@
               </div>
 
               <div class="preset-strip">
-                <label class="preset-field" for="s5-preset-select">
+                <div class="preset-field">
                   <span>导出格式</span>
-                  <select id="s5-preset-select">
-                    <option value="plain">明文配置</option>
-                    <option value="yundeng">云登</option>
-                  </select>
-                </label>
+                  <div class="preset-options" role="radiogroup" aria-label="导出格式">
+                    <label class="preset-option active">
+                      <input type="radio" name="s5-preset" value="plain" checked />
+                      <span>明文配置</span>
+                    </label>
+                    <label class="preset-option">
+                      <input type="radio" name="s5-preset" value="yundeng" />
+                      <span>云登</span>
+                    </label>
+                  </div>
+                </div>
                 <div class="preset-meta">
                   <span class="preset-label">当前规则</span>
                   <strong id="s5-preset-copy">socks5://账号:密码@地址:端口#备注</strong>
                 </div>
               </div>
 
-              <div class="summary-stats">
+              <div class="summary-stats compact-stats">
                 <article class="summary-stat inline-summary-stat">
                   <span>总行数</span>
                   <strong id="s5-total-rows">0</strong>

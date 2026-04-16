@@ -133,7 +133,11 @@
   }
 
   function renderS5Summary() {
-    $("s5-preset-select").value = state.s5.preset;
+    document.querySelectorAll('input[name="s5-preset"]').forEach(function (input) {
+      var isActive = input.value === state.s5.preset;
+      input.checked = isActive;
+      input.closest(".preset-option").classList.toggle("active", isActive);
+    });
     $("s5-preset-copy").textContent = EXPORT_PRESETS[state.s5.preset].pattern;
     if ($("s5-input").value !== state.s5.input) {
       $("s5-input").value = state.s5.input;
@@ -718,7 +722,7 @@
 
   function parseS5Input() {
     setBusy("s5", true);
-    state.s5 = parseS5Lines($("s5-input").value, $("s5-preset-select").value);
+    state.s5 = parseS5Lines($("s5-input").value, state.s5.preset);
     render();
 
     if (state.s5.errors.length) {
@@ -760,7 +764,9 @@
     $("parse-s5-button").disabled = isBusy;
     $("copy-s5-button").disabled = isBusy || !state.s5.copyReady;
     $("clear-s5-button").disabled = isBusy;
-    $("s5-preset-select").disabled = isBusy;
+    document.querySelectorAll('input[name="s5-preset"]').forEach(function (input) {
+      input.disabled = isBusy;
+    });
     $("s5-input").disabled = isBusy;
   }
 
@@ -771,9 +777,11 @@
       });
     });
 
-    $("s5-preset-select").addEventListener("change", function (event) {
-      resetS5DerivedState(state.s5.input, event.target.value);
-      render();
+    document.querySelectorAll('input[name="s5-preset"]').forEach(function (input) {
+      input.addEventListener("change", function (event) {
+        resetS5DerivedState(state.s5.input, event.target.value);
+        render();
+      });
     });
 
     $("s5-input").addEventListener("input", function (event) {
@@ -784,7 +792,7 @@
     $("parse-s5-button").addEventListener("click", parseS5Input);
     $("copy-s5-button").addEventListener("click", copyS5Output);
     $("clear-s5-button").addEventListener("click", function () {
-      state.s5 = Object.assign({}, emptyS5State, { preset: $("s5-preset-select").value });
+      state.s5 = Object.assign({}, emptyS5State, { preset: state.s5.preset });
       closeModal();
       render();
     });
