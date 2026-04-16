@@ -1,55 +1,39 @@
 # Proxy Excel Converter
 
-Standalone frontend workspace for converting proxy platform Excel exports into a fixed import template for a new website.
+静态版代理表单格式过滤工具。
 
 ## Scope
 
-- Upload one source Excel file
-- Validate required proxy rows before export
-- Block export when any row is invalid
-- Export a target Excel with fixed headers only
+- 上传一个源 `.xlsx` 文件
+- 在浏览器内完成字段校验与异常拦截
+- 校验通过后直接导出固定表头的目标 Excel
+- 不依赖 Python 服务，适合 GitHub Pages
 
-## Design Direction
+## 当前导出表头
 
-- Airtable-inspired structured data tool
-- Clean white workspace
-- High information density with clear validation states
+- `IP地址`
+- `代理地址`
+- `代理端口`
+- `代理账号`
+- `代理密码`
+- `备注`
 
-## OpenSpec
+## 本地预览
 
-- Change: `openspec/changes/init-proxy-excel-converter/`
+直接打开 `index.html` 即可，或用任意静态文件服务预览。
 
-## Run
+## 发布到 GitHub Pages
 
-```bash
-cd "/Users/lemon/Documents/project/Codex PJ/proxy-excel-converter"
-python3 app.py
-```
+1. 推送仓库到 GitHub
+2. 进入仓库 `Settings -> Pages`
+3. `Build and deployment` 选择 `Deploy from a branch`
+4. Branch 选择 `main`，目录选择 `/ (root)`
+5. 保存后等待 GitHub 生成 Pages 链接
 
-Then open:
+发布完成后，页面会直接在浏览器内读取 Excel、校验、预览并导出。
 
-- [http://127.0.0.1:8765](http://127.0.0.1:8765)
+## Notes
 
-## Deploy to Render
-
-This repo already includes [render.yaml](/Users/lemon/Documents/project/Codex PJ/proxy-excel-converter/render.yaml), so you can deploy it directly on Render:
-
-1. Open Render Dashboard
-2. New -> Blueprint or Web Service
-3. Connect GitHub repo: `Hyggetxc/proxy-excel-converter`
-4. Render will detect:
-   - build: `pip install -r requirements.txt`
-   - start: `python3 app.py`
-5. After deploy, open the Render URL
-
-Notes:
-
-- This app is not suitable for GitHub Pages because it requires a Python backend.
-- Render can host both the HTML UI and the Excel processing API in one service.
-
-## Current Status
-
-- Real source `.xlsx` validation is wired
-- Real target `.xlsx` export is wired
-- Export format is built into the page
-- Row-level blocking errors are shown in the modal
+- 页面依赖 CDN 版本的 `SheetJS` 读取和导出 `.xlsx`
+- 当前只支持 `.xlsx`
+- 发现任意异常行时，整批拦截，不允许导出
