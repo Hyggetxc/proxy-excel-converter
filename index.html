@@ -64,6 +64,7 @@
                 </div>
                 <div class="section-actions">
                   <button class="button primary" type="button" id="parse-s5-button">一键解析</button>
+                  <button class="button ghost" type="button" id="check-s5-button" disabled>一键检测</button>
                 </div>
               </div>
 
@@ -111,10 +112,23 @@
                 </div>
               </div>
 
-              <label class="textarea-shell result-shell" for="s5-output">
-                <span class="textarea-title">多行解析结果</span>
-                <textarea id="s5-output" class="text-output mono" readonly placeholder="解析通过后，这里会生成对应格式的多行结果。"></textarea>
-              </label>
+              <div class="s5-result-panel result-shell">
+                <div class="textarea-title">多行解析结果</div>
+                <div class="table-shell s5-table-shell">
+                  <table class="s5-result-table">
+                    <thead>
+                      <tr>
+                        <th>配置</th>
+                        <th>Google</th>
+                        <th>Cloudflare</th>
+                        <th>Apple</th>
+                      </tr>
+                    </thead>
+                    <tbody id="s5-result-body"></tbody>
+                  </table>
+                </div>
+                <textarea id="s5-output" class="text-output mono copy-buffer" readonly tabindex="-1" aria-hidden="true"></textarea>
+              </div>
 
               <div class="export-footer">
                 <div class="export-inline">

@@ -320,6 +320,17 @@ textarea {
   white-space: pre;
 }
 
+.copy-buffer {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .helper-card {
   margin-top: 14px;
   border-radius: 16px;
@@ -437,6 +448,55 @@ textarea {
 
 .result-shell {
   margin-top: 14px;
+}
+
+.s5-result-panel {
+  min-width: 0;
+}
+
+.s5-table-shell {
+  max-height: 284px;
+}
+
+.s5-result-table {
+  min-width: 760px;
+}
+
+.s5-result-table th:first-child,
+.s5-result-table td:first-child {
+  width: 58%;
+}
+
+.config-cell {
+  word-break: break-all;
+}
+
+.connectivity-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #f3f7f2;
+  color: #5f7067;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.connectivity-badge.success {
+  background: rgba(25, 107, 64, 0.12);
+  color: var(--accent-strong);
+}
+
+.connectivity-badge.error {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.connectivity-badge.checking {
+  background: rgba(177, 112, 0, 0.12);
+  color: var(--warning);
 }
 
 .dropzone-icon {

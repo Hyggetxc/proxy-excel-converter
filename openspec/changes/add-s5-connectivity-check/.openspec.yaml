@@ -1,0 +1,3 @@
+name: add-s5-connectivity-check
+status: in-progress
+description: Add one-click SOCKS5 connectivity checks with three target-site result columns.

@@ -18,6 +18,16 @@
       },
     },
   };
+  var CONNECTIVITY_TARGETS = [
+    { key: "google", label: "Google" },
+    { key: "cloudflare", label: "Cloudflare" },
+    { key: "apple", label: "Apple" },
+  ];
+  var CONNECTIVITY_API_BASE =
+    window.CONNECTIVITY_API_BASE ||
+    (window.location.protocol === "http:" || window.location.protocol === "https:"
+      ? window.location.origin
+      : "http://127.0.0.1:8765");
 
   var emptyExcelState = {
     fileName: "未选择文件",
@@ -42,6 +52,7 @@
     errors: [],
     outputText: "",
     copyReady: false,
+    checking: false,
     statusPill: "等待解析",
     statusPillClass: "pill-emerald",
     statusCaption: "请选择导出格式后开始解析",
@@ -151,9 +162,47 @@
     if ($("s5-output").value !== state.s5.outputText) {
       $("s5-output").value = state.s5.outputText;
     }
+    renderS5Results();
     $("s5-copy-caption").textContent = state.s5.copyCaption;
     $("copy-s5-button").disabled = !state.s5.copyReady;
+    $("check-s5-button").disabled = !state.s5.copyReady || state.s5.checking;
     $("open-errors-button-s5").disabled = state.s5.errors.length === 0;
+  }
+
+  function getConnectivityCell(row, key) {
+    if (!row.connectivity || !row.connectivity[key]) {
+      return { label: "待检测", status: "idle" };
+    }
+
+    return row.connectivity[key];
+  }
+
+  function renderConnectivityBadge(result) {
+    var status = result.status || (result.ok ? "success" : "error");
+    return '<span class="connectivity-badge ' + escapeHtml(status) + '">' + escapeHtml(result.label) + "</span>";
+  }
+
+  function renderS5Results() {
+    var tbody = $("s5-result-body");
+
+    if (!state.s5.rows.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="4">解析通过后，这里会显示导出配置；点击一键检测后展示三站连通性结果。</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = state.s5.rows
+      .map(function (row) {
+        return (
+          "<tr>" +
+          '<td class="mono config-cell">' + escapeHtml(row.output) + "</td>" +
+          CONNECTIVITY_TARGETS.map(function (target) {
+            return "<td>" + renderConnectivityBadge(getConnectivityCell(row, target.key)) + "</td>";
+          }).join("") +
+          "</tr>"
+        );
+      })
+      .join("");
   }
 
   function renderModal() {
@@ -624,6 +673,8 @@
         remark: parsed.remark || "",
         sourceFormat: parsed.sourceFormat,
         rawLine: line,
+        output: EXPORT_PRESETS[preset].render(parsed),
+        connectivity: null,
       });
     });
 
@@ -639,7 +690,7 @@
     var outputText = ok
       ? validRows
           .map(function (row) {
-            return EXPORT_PRESETS[preset].render(row);
+            return row.output;
           })
           .join("\n")
       : "";
@@ -752,6 +803,102 @@
     }
   }
 
+  function buildConnectivityPayload() {
+    return {
+      rows: state.s5.rows.map(function (row) {
+        return {
+          row: row.row,
+          host: row.host,
+          port: row.port,
+          username: row.username,
+          password: row.password,
+        };
+      }),
+    };
+  }
+
+  function setRowsConnectivityStatus(label, status) {
+    state.s5.rows = state.s5.rows.map(function (row) {
+      var connectivity = {};
+      CONNECTIVITY_TARGETS.forEach(function (target) {
+        connectivity[target.key] = { label: label, status: status };
+      });
+      return Object.assign({}, row, { connectivity: connectivity });
+    });
+  }
+
+  function applyConnectivityResults(results) {
+    var resultMap = {};
+    results.forEach(function (item) {
+      resultMap[item.row] = item.targets || {};
+    });
+
+    state.s5.rows = state.s5.rows.map(function (row) {
+      var targetResults = resultMap[row.row] || {};
+      var connectivity = {};
+
+      CONNECTIVITY_TARGETS.forEach(function (target) {
+        var result = targetResults[target.key];
+        if (!result) {
+          connectivity[target.key] = { label: "未返回", status: "error" };
+          return;
+        }
+        connectivity[target.key] = {
+          label: result.label || (result.ok ? "可用" : "失败"),
+          status: result.ok ? "success" : "error",
+        };
+      });
+
+      return Object.assign({}, row, { connectivity: connectivity });
+    });
+  }
+
+  async function checkS5Connectivity() {
+    if (!state.s5.copyReady || !state.s5.rows.length) {
+      alert("请先解析通过后再检测。");
+      return;
+    }
+
+    state.s5.checking = true;
+    state.s5.statusPill = "检测中";
+    state.s5.statusPillClass = "pill-emerald";
+    state.s5.statusCaption = "正在通过检测服务访问 Google / Cloudflare / Apple";
+    setRowsConnectivityStatus("检测中", "checking");
+    renderS5Summary();
+    setBusy("s5", true);
+
+    try {
+      var response = await fetch(CONNECTIVITY_API_BASE + "/api/check-connectivity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildConnectivityPayload()),
+      });
+      var payload = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.message || "检测服务返回异常");
+      }
+
+      applyConnectivityResults(payload.results || []);
+      state.s5.statusPill = "检测完成";
+      state.s5.statusPillClass = "pill-success";
+      state.s5.statusCaption = "三站检测结果已返回，复制结果仍只包含配置。";
+      state.s5.copyCaption = "检测结果仅展示在页面；一键复制仍复制 " + state.s5.summary.valid + " 条配置。";
+    } catch (error) {
+      setRowsConnectivityStatus("检测失败", "error");
+      state.s5.statusPill = "检测失败";
+      state.s5.statusPillClass = "pill-danger";
+      state.s5.statusCaption =
+        "无法连接检测服务。请确认已本地运行 python app.py，或配置 CONNECTIVITY_API_BASE。";
+    } finally {
+      state.s5.checking = false;
+      setBusy("s5", false);
+      renderS5Summary();
+    }
+  }
+
   function setBusy(scope, isBusy) {
     if (scope === "excel") {
       $("validate-button").disabled = isBusy || !state.file;
@@ -763,6 +910,7 @@
 
     $("parse-s5-button").disabled = isBusy;
     $("copy-s5-button").disabled = isBusy || !state.s5.copyReady;
+    $("check-s5-button").disabled = isBusy || !state.s5.copyReady;
     $("clear-s5-button").disabled = isBusy;
     document.querySelectorAll('input[name="s5-preset"]').forEach(function (input) {
       input.disabled = isBusy;
@@ -790,6 +938,7 @@
     });
 
     $("parse-s5-button").addEventListener("click", parseS5Input);
+    $("check-s5-button").addEventListener("click", checkS5Connectivity);
     $("copy-s5-button").addEventListener("click", copyS5Output);
     $("clear-s5-button").addEventListener("click", function () {
       state.s5 = Object.assign({}, emptyS5State, { preset: state.s5.preset });
